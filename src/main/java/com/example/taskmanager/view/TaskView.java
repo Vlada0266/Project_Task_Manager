@@ -1,71 +1,67 @@
 package com.example.taskmanager.view;
 
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.control.Button;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.VBox;
-import javafx.scene.Node;
-import com.example.taskmanager.model.Project;
 import com.example.taskmanager.model.Task;
-import java.util.List;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
+import javafx.geometry.Insets;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+import javafx.scene.control.Button;
 
-public class TaskView extends VBox {
-
-    private TableView<Project> projectTableView;
-    private TableView<Task> taskTableView;
-    private Button addProjectButton, addTaskButton, deleteProjectButton, deleteTaskButton;
+public class TaskView extends BorderPane {
+    private Button addTaskButton;
+    private Button deleteTaskButton;
+    private TextField taskInputField;
     private TextField searchField;
+    private Button clearSearchButton;
+    private ListView<Task> taskListView;
+    private Button sortButton;
 
-    public TaskView() {
-        // Инициализация элементов
-        projectTableView = new TableView<>();
-        taskTableView = new TableView<>();
-        addProjectButton = new Button("Add Project");
-        addTaskButton = new Button("Add Task");
-        deleteProjectButton = new Button("Delete Project");
-        deleteTaskButton = new Button("Delete Task");
+    public TaskView(Stage primaryStage) {
+        initializeUI();
+        primaryStage.setScene(new Scene(this, 800, 600));
+        primaryStage.setTitle("Task Manager");
+        primaryStage.show();
+    }
+
+    private void initializeUI() {
+        // Поле ввода для задач
+        taskInputField = new TextField();
+        taskInputField.setPromptText("Введите задачу...");
+
+        // Поле поиска
         searchField = new TextField();
+        searchField.setPromptText("Поиск задачи...");
 
-        // Добавление элементов в контейнер VBox
-        getChildren().addAll(
-                projectTableView,
-                taskTableView,
-                addProjectButton,
-                addTaskButton,
-                deleteProjectButton,
-                deleteTaskButton,
-                searchField
-        );
+        // Кнопки
+        addTaskButton = new Button("Добавить");
+        deleteTaskButton = new Button("Удалить");
+        clearSearchButton = new Button("Очистить поиск");
+        sortButton = new Button("Сортировать");
+
+        // Список задач
+        taskListView = new ListView<>();
+
+        // Верхняя панель (добавление задач)
+        HBox topPanel = new HBox(10, taskInputField, addTaskButton, deleteTaskButton, sortButton);
+        topPanel.setPadding(new Insets(10));
+
+        // Панель поиска
+        HBox searchPanel = new HBox(10, searchField, clearSearchButton);
+        searchPanel.setPadding(new Insets(10));
+
+        // Размещение элементов на сцене
+        setTop(topPanel);
+        setCenter(taskListView);
+        setBottom(searchPanel);
     }
 
-    // Устанавливаем действия для кнопок
-    public void setAddProjectButtonAction(EventHandler<ActionEvent> handler) {
-        addProjectButton.setOnAction(handler);
-    }
-
-    public void setAddTaskButtonAction(EventHandler<ActionEvent> handler) {
-        addTaskButton.setOnAction(handler);
-    }
-
-    public void setDeleteProjectButtonAction(EventHandler<ActionEvent> handler) {
-        deleteProjectButton.setOnAction(handler);
-    }
-
-    public void setDeleteTaskButtonAction(EventHandler<ActionEvent> handler) {
-        deleteTaskButton.setOnAction(handler);
-    }
-
-    // Метод для отображения проектов
-    public void displayProjects(List<Project> projects) {
-        // Логика для отображения проектов
-    }
-
-    // Метод для отображения задач
-    public void displayTasks(List<Task> tasks) {
-        // Логика для отображения задач
-    }
-
-    // Дополнительные методы для обновления интерфейса
+    // Геттеры для элементов
+    public Button getAddTaskButton() { return addTaskButton; }
+    public Button getDeleteTaskButton() { return deleteTaskButton; }
+    public TextField getTaskInputField() { return taskInputField; }
+    public ListView<Task> getTaskListView() { return taskListView; }
+    public TextField getSearchField() { return searchField; }
+    public Button getClearSearchButton() { return clearSearchButton; }
+    public Button getSortButton() { return sortButton; }
 }

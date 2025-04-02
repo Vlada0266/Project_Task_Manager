@@ -1,43 +1,68 @@
 package com.example.taskmanager.presenter;
 
+import com.example.taskmanager.model.*;
+import com.example.taskmanager.service.TaskService;
 import com.example.taskmanager.view.TaskView;
-import com.example.taskmanager.model.Task;
-import com.example.taskmanager.model.TaskManager;
-import com.example.taskmanager.model.Project;
-import javafx.event.ActionEvent;
+
+import java.util.UUID;
 
 public class TaskPresenter {
     private TaskView view;
-    private TaskManager model;
+    private TaskService taskService;
 
-    public TaskPresenter(TaskView view, TaskManager model) {
+    public TaskPresenter(TaskView view, TaskService taskService) {
         this.view = view;
-        this.model = model;
-
-        // Настройка действий для кнопок с использованием лямбда-выражений
-        view.setAddProjectButtonAction(event -> addProject());
-        view.setAddTaskButtonAction(event -> addTask());
-        view.setDeleteProjectButtonAction(event -> deleteProject());
-        view.setDeleteTaskButtonAction(event -> deleteTask());
+        this.taskService = taskService;
+        bind();
+        updateTaskList();
     }
 
-    private void addProject() {
-        Project newProject = new Project("New Project", "Description of project");
-        model.addProject(newProject);
-        view.displayProjects(model.getProjects());
+    private void bind() {
+        // Обработчик для добавления задачи
+        view.getAddTaskButton().setOnAction(e -> addTask());
+
+        // Обработчик для удаления задачи
+        view.getDeleteTaskButton().setOnAction(e -> deleteTask());
+
+        // Обработчик для очистки поиска
+        view.getClearSearchButton().setOnAction(e -> clearSearch());
+
+        // Обработчик для сортировки задач
+        view.getSortButton().setOnAction(e -> sortTasks());
     }
 
     private void addTask() {
-        Task newTask = new Task("New Task", "Task description", "John Doe", "High");
-        model.addTask(newTask);
-        view.displayTasks(model.getTasks());
-    }
-
-    private void deleteProject() {
-        // Логика удаления проекта
+        String taskName = view.getTaskInputField().getText();
+        if (!taskName.isEmpty()) {
+            Task task = new Task(UUID.randomUUID(), UUID.randomUUID(), taskName, "Hello", Task.TaskStatus.OPEN, Task.TaskPriority.MAJOR);
+            taskService.addTask(task);
+            updateTaskList();
+        }
     }
 
     private void deleteTask() {
-        // Логика удаления задачи
+        Task selectedTask = view.getTaskListView().getSelectionModel().getSelectedItem();
+        if (selectedTask != null) {
+            taskService.deleteTaskById(selectedTask.getId()); // Assuming Task has a constructor with a name
+            updateTaskList();
+        }
+    }
+
+    private void clearSearch() {
+        view.getSearchField().clear();
+        updateTaskList();
+    }
+
+    private void sortTasks() {
+//        taskService.sortTasksByPriority();
+        updateTaskList();
+    }
+
+    private void updateTaskList() {
+        view.getTaskListView().getItems().clear();
+        for (Task task : taskService.getTasks()) {
+            view.getTaskListView().getItems().add(task);
+        }
     }
 }
+
