@@ -1,6 +1,6 @@
 package com.example.taskmanager;
 
-import com.example.taskmanager.db.DatabaseConnection;
+import com.example.taskmanager.db.DatabaseConnectionManager;
 import com.example.taskmanager.db.TaskDAO;
 import com.example.taskmanager.service.TaskService;
 import com.example.taskmanager.view.TaskView;
@@ -11,7 +11,7 @@ import javafx.stage.Stage;
 public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
-        DatabaseConnection.initializeDatabase();
+        DatabaseConnectionManager.initializeDatabase();
         TaskDAO taskDAO = new TaskDAO();
         TaskService taskService = new TaskService(taskDAO);
         TaskView view = new TaskView(primaryStage);

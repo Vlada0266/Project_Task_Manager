@@ -2,13 +2,17 @@ package com.example.taskmanager.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 @AllArgsConstructor
 @Getter
-@ToString(of = {"id", "name"})
+@Setter
+//@ToString(of = {"id", "name"})
+@ToString
 public class Task {
     private UUID id;
     private UUID projectId;
@@ -16,12 +20,14 @@ public class Task {
     private String description;
     private TaskStatus status;
     private TaskPriority priority;
+    private LocalDate deadline;
+
 
     public enum TaskStatus {
-        OPEN, IN_PROGRESS, DONE, REJECT
+        Начата, В_работе, Выполнена, Отменена
     }
 
     public enum TaskPriority {
-        HIGH, MAJOR, LOW
+        Наивысший, Важный, Низкий
     }
 }
