@@ -46,15 +46,36 @@ public class TaskPresenter {
         String taskName = view.getTaskInputField().getText();
         String taskDescription = view.getDescriptionField().getText();
         LocalDate deadline = view.getDeadlinePicker().getValue();
-        Task.TaskPriority priority = Task.TaskPriority.valueOf(view.getPriorityComboBox().getValue()); // Получаем приоритет из ComboBox
-        Task.TaskStatus status = Task.TaskStatus.valueOf(view.getStatusComboBox().getValue()); // Получаем статус из ComboBox
+        String selectedPriority = view.getPriorityComboBox().getValue();
+        String selectedStatus = view.getStatusComboBox().getValue();
 
-        if (!taskName.isEmpty()) {
+        // Проверка на обязательные поля
+        if (taskName == null || taskName.isEmpty()
+                || taskDescription == null || taskDescription.isEmpty()
+                || deadline == null
+                || selectedPriority == null || selectedPriority.equals("Выберите приоритет")
+                || selectedStatus == null || selectedStatus.equals("Выберите статус")) {
+
+            showAlert("Ошибка", "Пожалуйста, заполните все поля: название, описание, дедлайн, приоритет и статус.");
+            return;
+        }
+
+        try {
+            Task.TaskPriority priority = Task.TaskPriority.valueOf(selectedPriority);
+            Task.TaskStatus status = Task.TaskStatus.valueOf(selectedStatus);
+
             Task task = new Task(UUID.randomUUID(), UUID.randomUUID(), taskName, taskDescription, status, priority, deadline);
             taskService.addTask(task);
             updateTaskList();
+            view.clearTaskInputFields(); // Очистим поля после успешного добавления
+
+        } catch (IllegalArgumentException e) {
+            showAlert("Ошибка", "Неверный формат данных. Пожалуйста, проверьте правильность ввода.");
         }
     }
+
+
+
 
     private void deleteTask() {
         Task selectedTask = view.getTaskListView().getSelectionModel().getSelectedItem();
@@ -74,6 +95,7 @@ public class TaskPresenter {
         // Обновляем задачу в сервисе
         taskService.updateTask(updatedTask);
         updateTaskList(); // Обновляем список задач на экране
+
     }
 
 
@@ -106,6 +128,15 @@ public class TaskPresenter {
         for (Task task : taskService.getTasks()) {
             view.getTaskListView().getItems().add(task);
         }
+    }
+
+    // Показывает простое модальное окно с ошибкой
+    private void showAlert(String title, String message) {
+        javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
 }

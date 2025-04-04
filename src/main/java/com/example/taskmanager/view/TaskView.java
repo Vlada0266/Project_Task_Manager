@@ -1,6 +1,7 @@
 package com.example.taskmanager.view;
 
 import com.example.taskmanager.model.Task;
+import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -126,13 +127,71 @@ public class TaskView extends BorderPane {
                 super.updateItem(item, empty);
                 if (empty || item == null) {
                     setText(null);
+                    setGraphic(null);
                 } else {
-                    // Форматируем вывод задачи с дедлайном
+                    // Название задачи
+                    Label nameLabel = new Label(item.getName());
+                    nameLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+
+                    // Описание
+                    Label descriptionLabel = new Label("Описание: " + item.getDescription());
+                    descriptionLabel.setStyle("-fx-text-fill: #555555;");
+
+                    // Цветной статус
+                    Label statusLabel = new Label("Статус: " + item.getStatus());
+                    statusLabel.setStyle("-fx-font-weight: bold;" + getStatusColorStyle(item.getStatus()));
+
+                    // Цветной приоритет
+                    Label priorityLabel = new Label("Приоритет: " + item.getPriority());
+                    priorityLabel.setStyle("-fx-font-weight: bold;" + getPriorityColorStyle(item.getPriority()));
+
+                    // Дедлайн
                     String deadlineText = item.getDeadline() != null ? item.getDeadline().toString() : "Без дедлайна";
-                    setText("Задача: " + item.getName() + " | Описание: " + item.getDescription() + " | Статус: " + item.getStatus() + " | Приоритет: " + item.getPriority() + " | Дедлайн: " + deadlineText);
+                    Label deadlineLabel = new Label("Дедлайн: " + deadlineText);
+                    deadlineLabel.setStyle("-fx-text-fill: #444444;");
+
+                    // Метаданные в одной строке
+                    HBox metaBox = new HBox(10, statusLabel, priorityLabel, deadlineLabel);
+                    metaBox.setSpacing(15);
+                    metaBox.setStyle("-fx-padding: 4 0 0 0;");
+
+                    // Основной контейнер задачи
+                    VBox vbox = new VBox(nameLabel, descriptionLabel, metaBox);
+                    vbox.setSpacing(3);
+                    vbox.setStyle("-fx-padding: 10; -fx-background-color: #f0f4f8; -fx-border-color: #d0d7de; -fx-border-radius: 6; -fx-background-radius: 6;");
+
+                    setGraphic(vbox);
                 }
             }
+
+            // Цвета для приоритета
+            private String getPriorityColorStyle(Task.TaskPriority priority) {
+                return switch (priority) {
+                    case Наивысший -> "-fx-text-fill: #d32f2f;"; // Красный
+                    case Важный -> "-fx-text-fill: #f57c00;";     // Оранжевый
+                    case Низкий -> "-fx-text-fill: #388e3c;";     // Зеленый
+                };
+            }
+
+            // Цвета для статуса
+            private String getStatusColorStyle(Task.TaskStatus status) {
+                return switch (status) {
+                    case Начата -> "-fx-text-fill: #1976d2;";     // Синий
+                    case В_работе -> "-fx-text-fill: #0288d1;";   // Голубой
+                    case Выполнена -> "-fx-text-fill: #388e3c;";  // Зеленый
+                    case Отменена -> "-fx-text-fill: #9e9e9e;";   // Серый
+                };
+            }
         });
+        // Очистка выделения при клике вне списка
+        Platform.runLater(() -> {
+            this.getScene().getRoot().setOnMouseClicked(event -> {
+                if (!taskListView.isHover()) {
+                    taskListView.getSelectionModel().clearSelection();
+                }
+            });
+        });
+
     }
 
 
@@ -255,5 +314,12 @@ public class TaskView extends BorderPane {
         );
 
         return updatedTask;
+    }
+    public void clearTaskInputFields() {
+        taskInputField.clear();
+        descriptionField.clear();
+        deadlinePicker.setValue(null);
+        priorityComboBox.setValue("Выберите приоритет");
+        statusComboBox.setValue("Выберите статус");
     }
 }
