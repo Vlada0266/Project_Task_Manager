@@ -23,13 +23,6 @@ public class DatabaseConnectionManager {
         }
     }
     public static void initializeDatabase() {
-        String createProjectsTable = """
-        CREATE TABLE IF NOT EXISTS projects (
-            id TEXT PRIMARY KEY NOT NULL,
-            name TEXT NOT NULL
-        );
-    """;
-
         String createTasksTable = """
         CREATE TABLE IF NOT EXISTS tasks (
             id TEXT PRIMARY KEY NOT NULL,
@@ -46,7 +39,6 @@ public class DatabaseConnectionManager {
         try (Connection conn = getConnection();
              Statement stmt = conn.createStatement()) {
             // Выполняем запросы на создание таблиц
-            stmt.execute(createProjectsTable);
             stmt.execute(createTasksTable);
         } catch (SQLException e) {
             System.err.println("Ошибка инициализации БД: " + e.getMessage());

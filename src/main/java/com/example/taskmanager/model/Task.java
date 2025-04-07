@@ -11,7 +11,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @Getter
 @Setter
-//@ToString(of = {"id", "name"})
 @ToString
 public class Task {
     private UUID id;

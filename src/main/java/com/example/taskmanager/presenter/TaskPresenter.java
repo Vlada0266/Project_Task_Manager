@@ -15,7 +15,7 @@ public class TaskPresenter {
     public TaskPresenter(TaskView view, TaskService taskService) {
         this.view = view;
         this.taskService = taskService;
-        bind();
+        bind(); //связывает кнопки интерфейса с методами
         updateTaskList();
     }
 
@@ -35,8 +35,6 @@ public class TaskPresenter {
         view.getEditTaskButton().setOnAction(e -> editTask());
 
         view.getSearchField().textProperty().addListener((observable, oldValue, newValue) -> searchTasks(newValue));
-
-        view.getSortButton().setOnAction(e -> sortTasks());
 
         view.getSearchField().textProperty().addListener((observable, oldValue, newValue) -> searchTasks(newValue));
     }
