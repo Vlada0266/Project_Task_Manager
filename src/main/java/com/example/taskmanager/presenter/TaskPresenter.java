@@ -1,7 +1,7 @@
 package com.example.taskmanager.presenter;
 
 import com.example.taskmanager.model.*;
-import com.example.taskmanager.service.TaskService;
+import com.example.taskmanager.service.TaskServiceInterface;
 import com.example.taskmanager.view.TaskView;
 
 import java.time.LocalDate;
@@ -10,9 +10,9 @@ import java.util.UUID;
 
 public class TaskPresenter {
     private TaskView view;
-    private TaskService taskService;
+    private final TaskServiceInterface taskService;
 
-    public TaskPresenter(TaskView view, TaskService taskService) {
+    public TaskPresenter(TaskView view, TaskServiceInterface taskService) {
         this.view = view;
         this.taskService = taskService;
         bind(); //связывает кнопки интерфейса с методами
