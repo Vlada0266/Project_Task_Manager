@@ -5,6 +5,10 @@ import com.example.taskmanager.db.TaskDAO;
 import com.example.taskmanager.service.TaskService;
 import com.example.taskmanager.service.TaskServiceInterface;
 import com.example.taskmanager.service.TaskServiceLoggerDecorator;
+import com.example.taskmanager.validation.NameValidator;
+import com.example.taskmanager.validation.DescriptionValidator;
+import com.example.taskmanager.validation.DeadlineValidator;
+import com.example.taskmanager.validation.TaskValidator;
 import com.example.taskmanager.view.TaskView;
 import com.example.taskmanager.presenter.TaskPresenter;
 import javafx.application.Application;
@@ -14,23 +18,32 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        // Инициализация базы данных (создание таблиц, если они не существуют)
+        // Инициализация базы данных
         DatabaseConnectionManager.initializeDatabase();
 
-        // Создание объекта доступа к данным (DAO)
+        // Создание DAO
         TaskDAO taskDAO = new TaskDAO();
 
-        // Создание сервисного слоя, обернутого в декоратор для логирования
-        TaskServiceInterface taskService = new TaskServiceLoggerDecorator(new TaskService(taskDAO));
+        // Создание цепочки валидаторов через конструкторы
+        TaskValidator validatorChain = new NameValidator(
+                new DescriptionValidator(
+                        new DeadlineValidator(null)
+                )
+        );
 
-        // Создание представления (UI) — сцена отображается в TaskView
+        // Создание сервиса с декоратором
+        TaskServiceInterface taskService = new TaskServiceLoggerDecorator(new TaskService(taskDAO, validatorChain));
+
+
+        // Создание View
         TaskView view = new TaskView(primaryStage);
 
-        // Создание презентера, который связывает логику (сервис) и интерфейс (view)
-        TaskPresenter presenter = new TaskPresenter(view, taskService);  // Здесь передаем интерфейс TaskServiceInterface
+        // Создание Presenter
+        TaskPresenter presenter = new TaskPresenter(view, taskService);
     }
 
     public static void main(String[] args) {
         launch(args);
     }
 }
+

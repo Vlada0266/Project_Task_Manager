@@ -2,9 +2,6 @@ package com.example.taskmanager.service;
 
 import com.example.taskmanager.db.TaskDAO;
 import com.example.taskmanager.model.Task;
-import com.example.taskmanager.validation.DeadlineValidator;
-import com.example.taskmanager.validation.DescriptionValidator;
-import com.example.taskmanager.validation.NameValidator;
 import com.example.taskmanager.validation.TaskValidator;
 import lombok.RequiredArgsConstructor;
 
@@ -18,13 +15,6 @@ public class TaskService implements TaskServiceInterface {
     private final TaskDAO taskDAO;
     private final TaskValidator validatorChain;
 
-    public TaskService(TaskDAO taskDAO) {
-        this.taskDAO = taskDAO;
-        this.validatorChain = new NameValidator();
-        validatorChain.setNext(new DescriptionValidator())
-                .setNext(new DeadlineValidator());
-    }
-
     @Override
     public List<Task> getTasks() {
         return taskDAO.getTasks();
@@ -32,7 +22,7 @@ public class TaskService implements TaskServiceInterface {
 
     @Override
     public void addTask(Task task) {
-        validatorChain.validate(task); // Проверка задачи через цепочку
+        validatorChain.validate(task); // Валидируем задачу перед добавлением
         taskDAO.addTask(task);
     }
 
@@ -43,7 +33,7 @@ public class TaskService implements TaskServiceInterface {
 
     @Override
     public void updateTask(Task task) {
-        validatorChain.validate(task); // Проверка задачи перед обновлением
+        validatorChain.validate(task); // Валидируем задачу перед обновлением
         taskDAO.updateTask(task);
     }
 
@@ -52,32 +42,21 @@ public class TaskService implements TaskServiceInterface {
         return taskDAO.searchTasks(keyword);
     }
 
-    public List<Task> sortTasksByPriority(List<Task> tasks) {
-        tasks.sort(Comparator.comparing(Task::getPriority));
-        return tasks;
-    }
-
-    public List<Task> sortTasksByStatus(List<Task> tasks) {
-        tasks.sort(Comparator.comparing(Task::getStatus));
-        return tasks;
-    }
-
-    public List<Task> sortTasksByDeadline(List<Task> tasks) {
-        tasks.sort(Comparator.comparing(Task::getDeadline));
-        return tasks;
-    }
-
     @Override
     public List<Task> sortTasks(List<Task> tasks, String sortBy) {
         switch (sortBy) {
             case "Приоритет":
-                return sortTasksByPriority(tasks);
+                tasks.sort(Comparator.comparing(Task::getPriority));
+                break;
             case "Статус":
-                return sortTasksByStatus(tasks);
+                tasks.sort(Comparator.comparing(Task::getStatus));
+                break;
             case "Дедлайн":
-                return sortTasksByDeadline(tasks);
+                tasks.sort(Comparator.comparing(Task::getDeadline));
+                break;
             default:
-                return tasks;
+                // Ничего не делаем, оставляем как есть
         }
+        return tasks;
     }
 }
