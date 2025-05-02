@@ -1,32 +1,44 @@
 package com.example.taskmanager;
 
-
 import com.example.taskmanager.db.DatabaseConnectionManager;
 import com.example.taskmanager.db.TaskDAO;
 import com.example.taskmanager.service.TaskService;
+import com.example.taskmanager.service.TaskServiceInterface;
+import com.example.taskmanager.service.TaskServiceLoggerDecorator;
+import com.example.taskmanager.validation.NameValidator;
+import com.example.taskmanager.validation.DescriptionValidator;
+import com.example.taskmanager.validation.DeadlineValidator;
+import com.example.taskmanager.validation.TaskValidator;
 import com.example.taskmanager.view.TaskView;
 import com.example.taskmanager.presenter.TaskPresenter;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
-
 public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        // Инициализация базы данных (создание таблиц, если они не существуют)
+        // Инициализация базы данных
         DatabaseConnectionManager.initializeDatabase();
 
-        // Создание объекта доступа к данным (DAO)
+        // Создание DAO
         TaskDAO taskDAO = new TaskDAO();
 
-        // Создание сервисного слоя, через который будет происходить вся логика работы с задачами
-        TaskService taskService = new TaskService(taskDAO);
+        // Создание цепочки валидаторов через конструкторы
+        TaskValidator validatorChain = new NameValidator(
+                new DescriptionValidator(
+                        new DeadlineValidator(null)
+                )
+        );
 
-        // Создание представления (UI) — сцена отображается в TaskView
+        // Создание сервиса с декоратором
+        TaskServiceInterface taskService = new TaskServiceLoggerDecorator(new TaskService(taskDAO, validatorChain));
+
+
+        // Создание View
         TaskView view = new TaskView(primaryStage);
 
-        // Создание презентера, который связывает логику (сервис) и интерфейс (view)
+        // Создание Presenter
         TaskPresenter presenter = new TaskPresenter(view, taskService);
     }
 
@@ -34,3 +46,4 @@ public class Main extends Application {
         launch(args);
     }
 }
+

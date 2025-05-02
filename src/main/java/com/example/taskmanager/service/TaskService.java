@@ -2,6 +2,7 @@ package com.example.taskmanager.service;
 
 import com.example.taskmanager.db.TaskDAO;
 import com.example.taskmanager.model.Task;
+import com.example.taskmanager.validation.TaskValidator;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Comparator;
@@ -9,65 +10,53 @@ import java.util.List;
 import java.util.UUID;
 
 @RequiredArgsConstructor
-public class TaskService {
+public class TaskService implements TaskServiceInterface {
 
-    // Объект доступа к данным (DAO), взаимодействует с базой данных
     private final TaskDAO taskDAO;
+    private final TaskValidator validatorChain;
 
-    // Получение всех задач из базы данных
+    @Override
     public List<Task> getTasks() {
         return taskDAO.getTasks();
     }
 
-    // Добавление новой задачи
+    @Override
     public void addTask(Task task) {
+        validatorChain.validate(task); // Валидируем задачу перед добавлением
         taskDAO.addTask(task);
     }
 
-    // Удаление задачи по её идентификатору
+    @Override
     public void deleteTaskById(UUID id) {
         taskDAO.deleteTaskById(id);
     }
 
-    // Обновление существующей задачи
+    @Override
     public void updateTask(Task task) {
+        validatorChain.validate(task); // Валидируем задачу перед обновлением
         taskDAO.updateTask(task);
     }
 
-    // Поиск задач по ключевому слову (в названии или описании)
+    @Override
     public List<Task> searchTasks(String keyword) {
         return taskDAO.searchTasks(keyword);
     }
 
-    // Сортировка задач по приоритету (от меньшего к большему)
-    public List<Task> sortTasksByPriority(List<Task> tasks) {
-        tasks.sort(Comparator.comparing(Task::getPriority));
-        return tasks;
-    }
-
-    // Сортировка задач по статусу (по порядку перечисления в enum)
-    public List<Task> sortTasksByStatus(List<Task> tasks) {
-        tasks.sort(Comparator.comparing(Task::getStatus));
-        return tasks;
-    }
-
-    // Сортировка задач по дате дедлайна (от ближайшего к более позднему)
-    public List<Task> sortTasksByDeadline(List<Task> tasks) {
-        tasks.sort(Comparator.comparing(Task::getDeadline));
-        return tasks;
-    }
-
-    // Метод, определяющий тип сортировки на основе выбранной пользователем опции
+    @Override
     public List<Task> sortTasks(List<Task> tasks, String sortBy) {
         switch (sortBy) {
             case "Приоритет":
-                return sortTasksByPriority(tasks);
+                tasks.sort(Comparator.comparing(Task::getPriority));
+                break;
             case "Статус":
-                return sortTasksByStatus(tasks);
+                tasks.sort(Comparator.comparing(Task::getStatus));
+                break;
             case "Дедлайн":
-                return sortTasksByDeadline(tasks);
+                tasks.sort(Comparator.comparing(Task::getDeadline));
+                break;
             default:
-                return tasks; // Если не выбрана сортировка, возвращаем задачи без изменений
+                // Ничего не делаем, оставляем как есть
         }
+        return tasks;
     }
 }
