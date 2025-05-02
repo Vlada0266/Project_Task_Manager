@@ -84,9 +84,12 @@ public class TaskPresenter {
         Task updatedTask = view.showEditDialog(selectedTask);
         if (updatedTask == null) return; // Если пользователь не ввел все данные, выходим
 
-        // Обновляем задачу в сервисе
-        taskService.updateTask(updatedTask);
-        updateTaskList(); // Обновляем список задач на экране
+        try {
+            taskService.updateTask(updatedTask);
+            updateTaskList();
+        } catch (RuntimeException e) {
+            showAlert("Ошибка", e.getMessage());
+        }
     }
 
     private void searchTasks(String keyword) {
