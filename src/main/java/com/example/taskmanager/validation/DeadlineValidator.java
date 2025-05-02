@@ -12,10 +12,14 @@ public class DeadlineValidator extends AbstractTaskValidator {
 
     @Override
     public void validate(Task task) {
-        System.out.println("Проверка дедлайна задачи: " + task.getDeadline());
-        if (task.getDeadline() != null && task.getDeadline().isBefore(LocalDate.now())) {
-            throw new IllegalArgumentException("Дедлайн не может быть в прошлом!");
+        if (task.getDeadline() == null) {
+            throw new IllegalArgumentException("Дедлайн не может быть пустым!");
         }
-        validateNext(task);
+
+        if (task.getDeadline().isBefore(LocalDate.now())) {
+             throw new IllegalArgumentException("Дедлайн не может быть в прошлом!");
+        }
+
+        validateNext(task); // Переход к следующему валидатору, если есть
     }
 }
